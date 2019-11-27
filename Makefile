@@ -1,8 +1,8 @@
 compile:
-	gcc main.c account.c -o bank
+	gcc account.c main.c -o bank
 
 run: compile
 	./bank
 
 compile-debug:
-	gcc -g main.c account.c -o bank
+	gcc -g account.c main.c -o bank

@@ -1,8 +1,11 @@
 #include <stdio.h>
+#include <stdlib.h>
+
 #include "account.h"
 
 void menu();
 void add_new_account();
+void list_accounts();
 
 int main () {
   menu();
@@ -13,13 +16,17 @@ void menu () {
   int option;
   printf("- Bank Manager\n");
   printf("[1] - Add new account\n");
+  printf("[2] - List accounts\n");
   scanf("%d", &option);
-  switch (option)
-  {
+  switch (option) {
   case 1:
     add_new_account();
     break;
-  
+
+  case 2:
+    list_accounts();
+    break;
+
   default:
     printf("Invalid input, try again\n");
     menu();
@@ -44,3 +51,14 @@ void add_new_account() {
     printf("Error to create account\n");
   }
 }
+
+void list_accounts() {
+  printf("- Bank manager\n");
+  printf("-- Accounts list\n");
+  account_list* list = account_get_all();
+  for (int i = 0; i < list->length; i++) {
+    account* ac = list->value[i];
+    printf("%d - %s\n", ac->id, ac->client_name);
+  }
+  menu();
+} 

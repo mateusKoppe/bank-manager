@@ -5,6 +5,7 @@
 
 #define STORAGE_FILE "storage/account.txt"
 #define TEMP_FILE "storage/account.temp.txt"
+#define LINE_FORMAT "%d | %s | %f\n"
 
 int account_list_init (account_list *l) {
   l->value = (account**) malloc(0);
@@ -19,7 +20,7 @@ int account_list_push (account_list *l, account *value) {
 
 int account_save (account ac) {
   FILE* file = fopen(STORAGE_FILE, "a");
-  int size = fprintf(file, "%d$%s$%f$\n", ac.id, ac.client_name, ac.balance);
+  int size = fprintf(file, LINE_FORMAT, ac.id, ac.client_name, ac.balance);
   fclose(file);
   if (size > 0) {
     return 0;
@@ -31,13 +32,12 @@ int account_update (account ac) {
   FILE* file = fopen(STORAGE_FILE, "r+");
   FILE* temp = fopen(TEMP_FILE, "w");
   account* i_ac = malloc(sizeof(account));
-  while (fscanf(file, "%d$%s$%f$\n", &i_ac->id, &i_ac->client_name, &i_ac->balance) != EOF) {
-    strcpy(i_ac->client_name, strtok(i_ac->client_name, "$"));
+  while (fscanf(file, LINE_FORMAT, &i_ac->id, &i_ac->client_name, &i_ac->balance) != EOF) {
     int is_finded = i_ac->id == ac.id;
     if (is_finded) {
-      fprintf(temp, "%d$%s$%f$\n", ac.id, ac.client_name, ac.balance);
+      fprintf(temp, LINE_FORMAT, ac.id, ac.client_name, ac.balance);
     } else {
-      fprintf(temp, "%d$%s$%f$\n", i_ac->id, i_ac->client_name, i_ac->balance);
+      fprintf(temp, LINE_FORMAT, i_ac->id, i_ac->client_name, i_ac->balance);
     }
   }
   free(i_ac);
@@ -52,10 +52,9 @@ account* account_search_for_id (int id) {
   account* ac = malloc(sizeof(account));
   FILE* file = fopen(STORAGE_FILE, "r");
   int is_finded = 0;
-  while (fscanf(file, "%d$%s$%f$\n", &ac->id, &ac->client_name, &ac->balance) != EOF) {
+  while (fscanf(file, LINE_FORMAT, &ac->id, &ac->client_name, &ac->balance) != EOF) {
     is_finded = ac->id == id;
     if (is_finded) {
-      strcpy(ac->client_name, strtok(ac->client_name, "$"));
       break;
     }
   }
@@ -73,8 +72,7 @@ account* account_search_for_name (char* name) {
   account* ac = malloc(sizeof(account));
   FILE* file = fopen(STORAGE_FILE, "r");
   int is_finded = 0;
-  while (fscanf(file, "%d$%s$%f$\n", &ac->id, &ac->client_name, &ac->balance) != EOF) {
-    strcpy(ac->client_name, strtok(ac->client_name, "$"));
+  while (fscanf(file, LINE_FORMAT, &ac->id, &ac->client_name, &ac->balance) != EOF) {
     is_finded = strcmp(ac->client_name, name) == 0;
     if (is_finded) {
       break;
@@ -94,45 +92,16 @@ account_list* account_get_all () {
   account_list *cl = malloc(sizeof(account_list*));
   account_list_init(cl);
   FILE* file = fopen(STORAGE_FILE, "r");
-  char* value = malloc(0);
-  int actual_word = 0;
-  int i = -1;
-  int word_size = 0;
-  while (!feof(file)) {
-    char character = (char) fgetc(file);
-    if (character != '$') {
-      if (character == '\n') {
-        continue;
-      }
-      char to_concat[] = {character};
-      word_size++;
-      value = realloc(value, sizeof (char*) * (word_size));
-      if (word_size > 1) {
-        strcat(value, to_concat);
-      } else {
-        strcpy(value, to_concat);
-      }
-    } else {
-      switch (actual_word%3) {
-        case 0:
-          i++;
-          account *ac = (account*) malloc(sizeof(account));
-          ac->id = atoi(value);
-          account_list_push(cl, ac);
-          break;
-        case 1:
-          strcpy(cl->value[i]->client_name, value);
-          break;
-        case 2:
-          cl->value[i]->balance = strtof(value, 0);
-          break;
-      }
-      actual_word++;
-      word_size = 0;
-      free(value);
-      value = malloc(0);
-    }
+  account i_ac;
+
+  while (fscanf(file, LINE_FORMAT, &i_ac.id, &i_ac.client_name, &i_ac.balance) != EOF) {
+    account *ac = (account*) malloc(sizeof(account));
+    ac->id = i_ac.id;
+    strcpy(ac->client_name, i_ac.client_name);
+    ac->balance = i_ac.balance;
+    account_list_push(cl, ac);
   }
+
   fclose(file);
   return cl;
 }

@@ -4,6 +4,7 @@
 #include "account.h"
 
 #define STORAGE_FILE "storage/account.txt"
+#define TEMP_FILE "storage/account.temp.txt"
 
 int account_list_init (account_list *l) {
   l->value = (account**) malloc(0);
@@ -24,6 +25,27 @@ int account_save (account ac) {
     return 0;
   }
   return 1;
+}
+
+int account_update (account ac) {
+  FILE* file = fopen(STORAGE_FILE, "r+");
+  FILE* temp = fopen(TEMP_FILE, "w");
+  account* i_ac = malloc(sizeof(account));
+  while (fscanf(file, "%d$%s$%f$\n", &i_ac->id, &i_ac->client_name, &i_ac->balance) != EOF) {
+    strcpy(i_ac->client_name, strtok(i_ac->client_name, "$"));
+    int is_finded = i_ac->id == ac.id;
+    if (is_finded) {
+      fprintf(temp, "%d$%s$%f$\n", ac.id, ac.client_name, ac.balance);
+    } else {
+      fprintf(temp, "%d$%s$%f$\n", i_ac->id, i_ac->client_name, i_ac->balance);
+    }
+  }
+  free(i_ac);
+  fclose(file);
+  fclose(temp);
+  remove(STORAGE_FILE);
+  rename(TEMP_FILE, STORAGE_FILE);
+  return 0;
 }
 
 account* account_search_for_id (int id) {

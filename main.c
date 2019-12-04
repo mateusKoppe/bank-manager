@@ -7,7 +7,8 @@ void menu();
 void add_new_account();
 void list_accounts();
 void search_account();
-void print_account();
+void menu_account(account *ac);
+void change_account_balance(account *ac);
 
 int main () {
   menu();
@@ -19,7 +20,7 @@ void menu () {
   printf("- Bank Manager\n");
   printf("[1] - Add new account\n");
   printf("[2] - List accounts\n");
-  printf("[3] - Search account\n");
+  printf("[3] - Access account\n");
   scanf("%d", &option);
   switch (option) {
   case 1:
@@ -98,11 +99,11 @@ void search_account() {
     return;
   }
 
-  print_account(ac);
+  menu_account(ac);
   menu();
 }
 
-void print_account(account *ac) {
+void menu_account(account *ac) {
   if (!ac) {
     printf("Invalid account\n");
     return;
@@ -110,4 +111,24 @@ void print_account(account *ac) {
   printf("id     : %d\n", ac->id);
   printf("Client : %s\n", ac->client_name);
   printf("Balance: %f\n", ac->balance);
+  printf("\n");
+  printf("[1] - Update balance\n");
+  printf("[2] - Exit\n");
+  int option;
+  scanf("%d", &option);
+  switch (option) {
+    case 1:
+      change_account_balance(ac);
+      break;
+    case 2:
+      menu();
+      return;
+  }
+}
+
+void change_account_balance (account *ac) {
+  printf("Enter the new balance: ");
+  scanf("%f", &ac->balance);
+  account_update(*ac);
+  menu_account(ac);
 }

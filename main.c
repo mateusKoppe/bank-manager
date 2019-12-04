@@ -93,12 +93,12 @@ void search_account() {
   account* ac;
   switch (option) {
     case 1:
-      printf("Enter client name\n");
+      printf("Enter account id\n");
       scanf("%s", &search_for);
       ac = account_search_for_id(atoi(search_for));
       break;
     case 2:
-      printf("Enter account id\n");
+      printf("Enter client name\n");
       scanf("%s", &search_for);
       ac = account_search_for_name(search_for);
       break;

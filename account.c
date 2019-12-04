@@ -19,13 +19,23 @@ int account_list_push (account_list *l, account *value) {
 }
 
 int account_save (account ac) {
-  FILE* file = fopen(STORAGE_FILE, "a");
-  int size = fprintf(file, LINE_FORMAT, ac.id, ac.client_name, ac.balance);
-  fclose(file);
-  if (size > 0) {
-    return 0;
+  FILE* file = fopen(STORAGE_FILE, "r+");
+  FILE* temp = fopen(TEMP_FILE, "w");
+  account i_ac;
+  int is_saved = 0;
+  while (fscanf(file, LINE_FORMAT, &i_ac.id, &i_ac.client_name, &i_ac.balance) != EOF) {
+    int is_bigger = i_ac.id > ac.id;
+    if (is_bigger && !is_saved) {
+      fprintf(temp, LINE_FORMAT, ac.id, ac.client_name, ac.balance);
+      is_saved = 1;
+    }
+    fprintf(temp, LINE_FORMAT, i_ac.id, i_ac.client_name, i_ac.balance);
   }
-  return 1;
+  fclose(file);
+  fclose(temp);
+  remove(STORAGE_FILE);
+  rename(TEMP_FILE, STORAGE_FILE);
+  return 0;
 }
 
 int account_update (account ac) {

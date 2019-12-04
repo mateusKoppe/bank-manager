@@ -11,6 +11,7 @@ typedef struct {
 
 int account_list_init (account_list *l);
 int account_list_push (account_list *l, account *value);
+int account_delete (account ac);
 int account_save (account ac);
 int account_update (account ac);
 account* account_search_for_id(int id);

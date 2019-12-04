@@ -9,6 +9,8 @@ void list_accounts();
 void search_account();
 void menu_account(account *ac);
 void change_account_balance(account *ac);
+void screen_clean();
+void enter_to_continue();
 
 int main () {
   menu();
@@ -17,6 +19,7 @@ int main () {
 
 void menu () {
   int option;
+  screen_clean();
   printf("- Bank Manager\n");
   printf("[1] - Add new account\n");
   printf("[2] - List accounts\n");
@@ -37,6 +40,7 @@ void menu () {
 
   default:
     printf("Invalid input, try again\n");
+    enter_to_continue();
     menu();
     break;
   }
@@ -45,6 +49,7 @@ void menu () {
 void add_new_account() {
   account newAccount;
   newAccount.balance = 0;
+  screen_clean();
   printf("- Bank manager\n");
   printf("-- New account\n");
   printf("name: ");
@@ -54,13 +59,17 @@ void add_new_account() {
   int created_code = account_save(newAccount);
   if (created_code == 0) {
     printf("Account created successfully\n");
+    enter_to_continue();
     menu();
   } else {
     printf("Error to create account\n");
+    enter_to_continue();
+    menu();
   }
 }
 
 void list_accounts() {
+  screen_clean();
   printf("- Bank manager\n");
   printf("-- Accounts list\n");
   account_list* list = account_get_all();
@@ -68,10 +77,12 @@ void list_accounts() {
     account* ac = list->value[i];
     printf("%d - %s\n", ac->id, ac->client_name);
   }
+  enter_to_continue();
   menu();
 }
 
 void search_account() {
+  screen_clean();
   printf("- Bank manager\n");
   printf("-- Search for:\n");
   printf("[1] - Account id\n");
@@ -79,13 +90,16 @@ void search_account() {
   int option;
   scanf("%d", &option);
   char search_for[80];
-  scanf("%s", &search_for);
   account* ac;
   switch (option) {
     case 1:
+      printf("Enter client name\n");
+      scanf("%s", &search_for);
       ac = account_search_for_id(atoi(search_for));
       break;
     case 2:
+      printf("Enter account id\n");
+      scanf("%s", &search_for);
       ac = account_search_for_name(search_for);
       break;
     default:
@@ -95,6 +109,7 @@ void search_account() {
 
   if (!ac) {
     printf("Account not found\n");
+    enter_to_continue();
     menu();
     return;
   }
@@ -106,14 +121,18 @@ void search_account() {
 void menu_account(account *ac) {
   if (!ac) {
     printf("Invalid account\n");
+    menu();
     return;
   }
+  screen_clean();
+  printf("- Bank manager\n");
+  printf("-- Profile:\n");
   printf("id     : %d\n", ac->id);
   printf("Client : %s\n", ac->client_name);
   printf("Balance: %f\n", ac->balance);
   printf("\n");
   printf("[1] - Update balance\n");
-  printf("[2] - Exit\n");
+  printf("[2] - Back to menu\n");
   int option;
   scanf("%d", &option);
   switch (option) {
@@ -130,5 +149,23 @@ void change_account_balance (account *ac) {
   printf("Enter the new balance: ");
   scanf("%f", &ac->balance);
   account_update(*ac);
+  printf("Account updated\n");
+  enter_to_continue();
   menu_account(ac);
+}
+
+void screen_clean () {
+  #if defined(__linux__) || defined(__unix__) || defined(__APPLE__)
+    system("clear");
+  #endif
+
+  #if defined(_WIN32) || defined(_WIN64)
+    system("cls");
+  #endif
+}
+
+void enter_to_continue () {
+  printf("Press enter to continue...");
+  getchar();
+  getchar();
 }

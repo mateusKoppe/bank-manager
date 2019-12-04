@@ -6,6 +6,8 @@
 void menu();
 void add_new_account();
 void list_accounts();
+void search_account();
+void print_account();
 
 int main () {
   menu();
@@ -17,6 +19,7 @@ void menu () {
   printf("- Bank Manager\n");
   printf("[1] - Add new account\n");
   printf("[2] - List accounts\n");
+  printf("[3] - Search account\n");
   scanf("%d", &option);
   switch (option) {
   case 1:
@@ -25,6 +28,10 @@ void menu () {
 
   case 2:
     list_accounts();
+    break;
+
+  case 3:
+    search_account();
     break;
 
   default:
@@ -61,4 +68,46 @@ void list_accounts() {
     printf("%d - %s\n", ac->id, ac->client_name);
   }
   menu();
-} 
+}
+
+void search_account() {
+  printf("- Bank manager\n");
+  printf("-- Search for:\n");
+  printf("[1] - Account id\n");
+  printf("[2] - Client Name\n");
+  int option;
+  scanf("%d", &option);
+  char search_for[80];
+  scanf("%s", &search_for);
+  account* ac;
+  switch (option) {
+    case 1:
+      ac = account_search_for_id(atoi(search_for));
+      break;
+    case 2:
+      ac = account_search_for_name(search_for);
+      break;
+    default:
+      search_account();
+      return;
+  }
+
+  if (!ac) {
+    printf("Account not found\n");
+    menu();
+    return;
+  }
+
+  print_account(ac);
+  menu();
+}
+
+void print_account(account *ac) {
+  if (!ac) {
+    printf("Invalid account\n");
+    return;
+  }
+  printf("id     : %d\n", ac->id);
+  printf("Client : %s\n", ac->client_name);
+  printf("Balance: %f\n", ac->balance);
+}

@@ -26,6 +26,48 @@ int account_save (account ac) {
   return 1;
 }
 
+account* account_search_for_id (int id) {
+  account* ac = malloc(sizeof(account));
+  FILE* file = fopen(STORAGE_FILE, "r");
+  int is_finded = 0;
+  while (fscanf(file, "%d$%s$%f$\n", &ac->id, &ac->client_name, &ac->balance) != EOF) {
+    is_finded = ac->id == id;
+    if (is_finded) {
+      strcpy(ac->client_name, strtok(ac->client_name, "$"));
+      break;
+    }
+  }
+
+  fclose(file);
+  if (!is_finded) {
+    free(ac);
+    return NULL;
+  }
+
+  return ac;
+}
+
+account* account_search_for_name (char* name) {
+  account* ac = malloc(sizeof(account));
+  FILE* file = fopen(STORAGE_FILE, "r");
+  int is_finded = 0;
+  while (fscanf(file, "%d$%s$%f$\n", &ac->id, &ac->client_name, &ac->balance) != EOF) {
+    strcpy(ac->client_name, strtok(ac->client_name, "$"));
+    is_finded = strcmp(ac->client_name, name) == 0;
+    if (is_finded) {
+      break;
+    }
+  }
+
+  fclose(file);
+  if (!is_finded) {
+    free(ac);
+    return NULL;
+  }
+
+  return ac;
+}
+
 account_list* account_get_all () {
   account_list *cl = malloc(sizeof(account_list*));
   account_list_init(cl);

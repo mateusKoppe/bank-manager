@@ -18,6 +18,23 @@ int account_list_push (account_list *l, account *value) {
   l->length++;
 }
 
+int account_delete (account ac) {
+  FILE* file = fopen(STORAGE_FILE, "r+");
+  FILE* temp = fopen(TEMP_FILE, "w");
+  account i_ac;
+  while (fscanf(file, LINE_FORMAT, &i_ac.id, &i_ac.client_name, &i_ac.balance) != EOF) {
+    if (i_ac.id == ac.id) {
+      continue;
+    }
+    fprintf(temp, LINE_FORMAT, i_ac.id, i_ac.client_name, i_ac.balance);
+  }
+  fclose(file);
+  fclose(temp);
+  remove(STORAGE_FILE);
+  rename(TEMP_FILE, STORAGE_FILE);
+  return 0;
+}
+
 int account_save (account ac) {
   FILE* file = fopen(STORAGE_FILE, "r+");
   FILE* temp = fopen(TEMP_FILE, "w");

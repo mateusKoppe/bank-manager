@@ -9,6 +9,7 @@ void list_accounts();
 void search_account();
 void menu_account(account *ac);
 void change_account_balance(account *ac);
+void delete_account(account *ac);
 void screen_clean();
 void enter_to_continue();
 
@@ -132,7 +133,8 @@ void menu_account(account *ac) {
   printf("Balance: %f\n", ac->balance);
   printf("\n");
   printf("[1] - Update balance\n");
-  printf("[2] - Back to menu\n");
+  printf("[2] - Delete account\n");
+  printf("[3] - Back to menu\n");
   int option;
   scanf("%d", &option);
   switch (option) {
@@ -140,8 +142,16 @@ void menu_account(account *ac) {
       change_account_balance(ac);
       break;
     case 2:
+      delete_account(ac);
+      break;
+    case 3:
       menu();
       return;
+    default:
+      printf("Invalid option\n");
+      enter_to_continue();
+      menu_account(ac);
+      break;
   }
 }
 
@@ -152,6 +162,19 @@ void change_account_balance (account *ac) {
   printf("Account updated\n");
   enter_to_continue();
   menu_account(ac);
+}
+
+void delete_account (account *ac) {
+  printf("Are you sure? [yN]\n");
+  char awnser;
+  getchar();
+  scanf("%c", &awnser);
+  if (awnser == 'y') {
+    account_delete(*ac);
+    printf("Account deleted\n");
+    enter_to_continue();
+  }
+  menu();
 }
 
 void screen_clean () {

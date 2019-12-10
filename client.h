@@ -8,7 +8,6 @@ typedef struct {
 
 int client_delete (client* cl);
 int client_save (client* cl);
-int client_update (client* cl);
 client* client_new ();
 client* client_search_for_id(int id);
 client* client_search_for_name(char* name);

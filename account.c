@@ -5,15 +5,14 @@
 #include "account.h"
 #include "client.h"
 
-#define ACCOUNT_STORAGE_FILE "storage/account.txt"
-#define ACCOUNT_TEMP_FILE "storage/account.temp.txt"
+#define STORAGE_FILE "storage/account.txt"
+#define TEMP_FILE "storage/account.temp.txt"
 #define ACCOUNT_LINE_FORMAT "%d | %d | %f\n"
 
 account* account_new () {
   account* ac = malloc(sizeof(account));
   ac->client = client_new();
   ac->balance = 0;
-  strcpy(ac->client_name, "");
   return ac;
 }
 
@@ -29,8 +28,8 @@ int account_list_push (account_list *l, account *value) {
 }
 
 int account_delete (account ac) {
-  FILE* file = fopen(ACCOUNT_STORAGE_FILE, "r+");
-  FILE* temp = fopen(ACCOUNT_TEMP_FILE, "w");
+  FILE* file = fopen(STORAGE_FILE, "r+");
+  FILE* temp = fopen(TEMP_FILE, "w");
   account i_ac;
   while (fscanf(file, ACCOUNT_LINE_FORMAT, &i_ac.id, &i_ac.client_name, &i_ac.balance) != EOF) {
     if (i_ac.id == ac.id) {
@@ -40,14 +39,14 @@ int account_delete (account ac) {
   }
   fclose(file);
   fclose(temp);
-  remove(ACCOUNT_STORAGE_FILE);
-  rename(ACCOUNT_TEMP_FILE, ACCOUNT_STORAGE_FILE);
+  remove(STORAGE_FILE);
+  rename(TEMP_FILE, STORAGE_FILE);
   return 0;
 }
 
 int account_save (account* ac) {
-  FILE* file = fopen(ACCOUNT_STORAGE_FILE, "r+");
-  FILE* temp = fopen(ACCOUNT_TEMP_FILE, "w");
+  FILE* file = fopen(STORAGE_FILE, "r+");
+  FILE* temp = fopen(TEMP_FILE, "w");
   account* i_ac = account_new();
   int is_saved = 0;
   /* TODO: Handle client errors */
@@ -62,14 +61,14 @@ int account_save (account* ac) {
   }
   fclose(file);
   fclose(temp);
-  remove(ACCOUNT_STORAGE_FILE);
-  rename(ACCOUNT_TEMP_FILE, ACCOUNT_STORAGE_FILE);
+  remove(STORAGE_FILE);
+  rename(TEMP_FILE, STORAGE_FILE);
   return 0;
 }
 
 int account_update (account ac) {
-  FILE* file = fopen(ACCOUNT_STORAGE_FILE, "r+");
-  FILE* temp = fopen(ACCOUNT_TEMP_FILE, "w");
+  FILE* file = fopen(STORAGE_FILE, "r+");
+  FILE* temp = fopen(TEMP_FILE, "w");
   account* i_ac = malloc(sizeof(account));
   while (fscanf(file, ACCOUNT_LINE_FORMAT, &i_ac->id, &i_ac->client_name, &i_ac->balance) != EOF) {
     int is_finded = i_ac->id == ac.id;
@@ -82,16 +81,16 @@ int account_update (account ac) {
   free(i_ac);
   fclose(file);
   fclose(temp);
-  remove(ACCOUNT_STORAGE_FILE);
-  rename(ACCOUNT_TEMP_FILE, ACCOUNT_STORAGE_FILE);
+  remove(STORAGE_FILE);
+  rename(TEMP_FILE, STORAGE_FILE);
   return 0;
 }
 
 account* account_search_for_id (int id) {
-  account* ac = malloc(sizeof(account));
-  FILE* file = fopen(ACCOUNT_STORAGE_FILE, "r");
+  account* ac = account_new();
+  FILE* file = fopen(STORAGE_FILE, "r");
   int is_finded = 0;
-  while (fscanf(file, ACCOUNT_LINE_FORMAT, &ac->id, &ac->client_name, &ac->balance) != EOF) {
+  while (fscanf(file, ACCOUNT_LINE_FORMAT, &ac->id, &ac->client->id, &ac->balance) != EOF) {
     is_finded = ac->id == id;
     if (is_finded) {
       break;
@@ -104,12 +103,13 @@ account* account_search_for_id (int id) {
     return NULL;
   }
 
+  ac->client = client_search_for_id(ac->client->id);
   return ac;
 }
 
 account* account_search_for_name (char* name) {
   account* ac = malloc(sizeof(account));
-  FILE* file = fopen(ACCOUNT_STORAGE_FILE, "r");
+  FILE* file = fopen(STORAGE_FILE, "r");
   int is_finded = 0;
   while (fscanf(file, ACCOUNT_LINE_FORMAT, &ac->id, &ac->client_name, &ac->balance) != EOF) {
     is_finded = strcmp(ac->client_name, name) == 0;
@@ -130,16 +130,18 @@ account* account_search_for_name (char* name) {
 account_list* account_get_all () {
   account_list *cl = malloc(sizeof(account_list*));
   account_list_init(cl);
-  FILE* file = fopen(ACCOUNT_STORAGE_FILE, "r");
-  account i_ac;
+  FILE* file = fopen(STORAGE_FILE, "r");
+  account* cl_temp = account_new();
 
-  while (fscanf(file, ACCOUNT_LINE_FORMAT, &i_ac.id, &i_ac.client_name, &i_ac.balance) != EOF) {
-    account *ac = (account*) malloc(sizeof(account));
-    ac->id = i_ac.id;
-    strcpy(ac->client_name, i_ac.client_name);
-    ac->balance = i_ac.balance;
+  while (fscanf(file, ACCOUNT_LINE_FORMAT, &cl_temp->id, &cl_temp->client->id, &cl_temp->balance) != EOF) {
+    account *ac = account_new();
+    ac->id = cl_temp->id;
+    ac->client = client_search_for_id(cl_temp->client->id);
+    ac->balance = cl_temp->balance;
     account_list_push(cl, ac);
   }
+
+  free(cl_temp);
 
   fclose(file);
   return cl;

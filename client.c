@@ -49,7 +49,22 @@ int client_get_last_id () {
 }
 
 client* client_search_for_id(int id) {
-  return 0;
+  client* cl = client_new();
+  FILE* file = fopen(STORAGE_FILE, "r");
+  int is_finded = 0;
+  while (fscanf(file, LINE_FORMAT, &cl->id, &cl->name) != EOF) {
+    is_finded = cl->id == id;
+    if (is_finded) {
+      break;
+    }
+  }
+
+  fclose(file);
+  if (!is_finded) {
+    free(cl);
+    return NULL;
+  }
+  return cl;
 }
 
 client* client_search_for_name(char* name) {

@@ -76,7 +76,7 @@ void list_accounts() {
   account_list* list = account_get_all();
   for (int i = 0; i < list->length; i++) {
     account* ac = list->value[i];
-    printf("%d - %s\n", ac->id, ac->client_name);
+    printf("%d - %s\n", ac->id, ac->client->name);
   }
   enter_to_continue();
   menu();
@@ -129,7 +129,7 @@ void menu_account(account *ac) {
   printf("- Bank manager\n");
   printf("-- Profile:\n");
   printf("id     : %d\n", ac->id);
-  printf("Client : %s\n", ac->client_name);
+  printf("Client : %s\n", ac->client->name);
   printf("Balance: %f\n", ac->balance);
   printf("\n");
   printf("[1] - Update balance\n");

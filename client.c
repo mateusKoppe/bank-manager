@@ -7,8 +7,12 @@
 #define STORAGE_FILE "storage/client.txt"
 #define TEMP_FILE "storage/client.temp.txt"
 #define LINE_FORMAT "%d | %s\n"
+#define INDEX_NAME_FILE "storage/client.index-name.txt"
+#define INDEX_NAME_TEMP_FILE "storage/client.index-name.temp.txt"
+#define INDEX_NAME_LINE_FORMAT "%s | %d\n"
 
 int client_get_last_id();
+int client_save_index(client* cl);
 
 client* client_new () {
   client *cl = (client*) malloc(sizeof(client));
@@ -43,6 +47,31 @@ int client_save (client* cl) {
   if (size == 0) {
     return 1;
   }
+  client_save_index(cl);
+
+  return 0;
+}
+
+int client_save_index (client* cl) {
+  FILE* file = fopen(INDEX_NAME_FILE, "r+");
+  FILE* temp = fopen(INDEX_NAME_TEMP_FILE, "w");
+  client* cl_temp = client_new();
+  int is_saved = 0;
+  while (fscanf(file, INDEX_NAME_LINE_FORMAT, &cl_temp->name, &cl_temp->id) != EOF) {
+    int is_bigger = strcmp(cl_temp->name, cl->name) > 0;
+    if (is_bigger && !is_saved) {
+      fprintf(temp, INDEX_NAME_LINE_FORMAT, cl->name, cl->id);
+      is_saved = 1;
+    }
+    fprintf(temp, INDEX_NAME_LINE_FORMAT, cl_temp->name, cl_temp->id);
+  }
+  if (!is_saved) {
+    fprintf(temp, INDEX_NAME_LINE_FORMAT, cl->name, cl->id);
+  }
+  fclose(file);
+  fclose(temp);
+  remove(INDEX_NAME_FILE);
+  rename(INDEX_NAME_TEMP_FILE, INDEX_NAME_FILE);
   return 0;
 }
 
@@ -97,11 +126,12 @@ client* client_search_for_id(int id) {
 }
 
 client* client_search_for_name(char* name) {
-  FILE* file = fopen(STORAGE_FILE, "r");
-  client* cl = client_new();
+  FILE* file = fopen(INDEX_NAME_FILE, "r");
+  char fetch_name[80];
+  int fetch_id;
   int is_finded = 0;
-  while (fscanf(file, LINE_FORMAT, &cl->id, &cl->name) != EOF) {
-    is_finded = strcmp(cl->name, name) == 0;
+  while (fscanf(file, INDEX_NAME_LINE_FORMAT, &fetch_name, &fetch_id) != EOF) {
+    is_finded = strcmp(fetch_name, name) == 0;
     if (is_finded) {
       break;
     }
@@ -109,9 +139,9 @@ client* client_search_for_name(char* name) {
 
   fclose(file);
   if (!is_finded) {
-    free(cl);
     return NULL;
   }
 
+  client* cl = client_search_for_id(fetch_id);
   return cl;
 }

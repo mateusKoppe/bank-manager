@@ -7,6 +7,8 @@
 
 #define STORAGE_FILE "storage/account.txt"
 #define TEMP_FILE "storage/account.temp.txt"
+#define INDEX_FILE "storage/account.index.txt"
+#define INDEX_TEMP_FILE "storage/account.index.temp.txt"
 #define LINE_FORMAT "%d | %d | %f\n"
 
 account* account_new () {

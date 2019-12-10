@@ -48,15 +48,15 @@ void menu () {
 }
 
 void add_new_account() {
-  account newAccount;
-  newAccount.balance = 0;
+  account* newAccount = account_new();
+  newAccount->balance = 0;
   screen_clean();
   printf("- Bank manager\n");
   printf("-- New account\n");
   printf("name: ");
-  scanf("%s", &newAccount.client_name);
+  scanf("%s", &newAccount->client->name);
   printf("account: ");
-  scanf("%d", &newAccount.id);
+  scanf("%d", &newAccount->id);
   int created_code = account_save(newAccount);
   if (created_code == 0) {
     printf("Account created successfully\n");

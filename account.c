@@ -109,12 +109,12 @@ account* account_search_for_id (int id) {
   return ac;
 }
 
-account* account_search_for_name (char* name) {
-  account* ac = malloc(sizeof(account));
+account* account_search_for_client_id (int id) {
+  account* ac = account_new();
   FILE* file = fopen(STORAGE_FILE, "r");
   int is_finded = 0;
-  while (fscanf(file, LINE_FORMAT, &ac->id, &ac->client_name, &ac->balance) != EOF) {
-    is_finded = strcmp(ac->client_name, name) == 0;
+  while (fscanf(file, LINE_FORMAT, &ac->id, &ac->client->id, &ac->balance) != EOF) {
+    is_finded = ac->client->id == id;
     if (is_finded) {
       break;
     }
@@ -126,6 +126,16 @@ account* account_search_for_name (char* name) {
     return NULL;
   }
 
+  ac->client = client_search_for_id(ac->client->id);
+  return ac;
+}
+
+account* account_search_for_name (char* name) {
+  client* cl = client_search_for_name(name);
+  if (!cl) {
+    return NULL;
+  }
+  account* ac = account_search_for_client_id(cl->id);
   return ac;
 }
 

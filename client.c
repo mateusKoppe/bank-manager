@@ -81,5 +81,21 @@ client* client_search_for_id(int id) {
 }
 
 client* client_search_for_name(char* name) {
-  return 0;
+  FILE* file = fopen(STORAGE_FILE, "r");
+  client* cl = client_new();
+  int is_finded = 0;
+  while (fscanf(file, LINE_FORMAT, &cl->id, &cl->name) != EOF) {
+    is_finded = strcmp(cl->name, name) == 0;
+    if (is_finded) {
+      break;
+    }
+  }
+
+  fclose(file);
+  if (!is_finded) {
+    free(cl);
+    return NULL;
+  }
+
+  return cl;
 }

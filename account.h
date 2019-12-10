@@ -22,6 +22,7 @@ int account_save (account* ac);
 int account_update (account ac);
 account* account_new ();
 account* account_search_for_id(int id);
+account* account_search_for_client_id (int id);
 account* account_search_for_name(char* name);
 account_list* account_get_all();
 

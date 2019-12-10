@@ -5,7 +5,6 @@
 
 typedef struct {
   int id;
-  char client_name[80];
   client* client;
   float balance;
 } account;

@@ -73,12 +73,12 @@ int account_update (account* ac) {
   FILE* temp = fopen(TEMP_FILE, "w");
   client_update(ac->client);
   account* ac_temp = account_new();
-  while (fscanf(file, LINE_FORMAT, &ac_temp->id, &ac_temp->client_name, &ac_temp->balance) != EOF) {
+  while (fscanf(file, LINE_FORMAT, &ac_temp->id, &ac_temp->client->id, &ac_temp->balance) != EOF) {
     int is_finded = ac_temp->id == ac->id;
     if (is_finded) {
-      fprintf(temp, LINE_FORMAT, ac->id, ac->client_name, ac->balance);
+      fprintf(temp, LINE_FORMAT, ac->id, ac->client->id, ac->balance);
     } else {
-      fprintf(temp, LINE_FORMAT, ac_temp->id, ac_temp->client_name, ac_temp->balance);
+      fprintf(temp, LINE_FORMAT, ac_temp->id, ac_temp->client->id, ac_temp->balance);
     }
   }
   free(ac_temp);

@@ -7,6 +7,7 @@ void menu();
 void add_new_account();
 void list_accounts();
 void search_account();
+void show_total();
 void menu_account(account *ac);
 void change_account_balance(account *ac);
 void delete_account(account *ac);
@@ -25,6 +26,7 @@ void menu () {
   printf("[1] - Add new account\n");
   printf("[2] - List accounts\n");
   printf("[3] - Access account\n");
+  printf("[4] - Access total\n");
   scanf("%d", &option);
   switch (option) {
   case 1:
@@ -37,6 +39,10 @@ void menu () {
 
   case 3:
     search_account();
+    break;
+
+  case 4:
+    show_total();
     break;
 
   default:
@@ -116,6 +122,21 @@ void search_account() {
   }
 
   menu_account(ac);
+  menu();
+}
+
+void show_total () {
+  screen_clean();
+  printf("- Bank manager\n");
+  printf("-- Total\n");
+  float total = 0;
+  account_list* list = account_get_all();
+  for (int i = 0; i < list->length; i++) {
+    account* ac = list->value[i];
+    total += ac->balance;
+  }
+  printf("Total: %f\n", total);
+  enter_to_continue();
   menu();
 }
 

@@ -61,6 +61,9 @@ int account_save (account* ac) {
     }
     fprintf(temp, LINE_FORMAT, ac_temp->id, ac_temp->client->id, ac_temp->balance);
   }
+  if (!is_saved) {
+    fprintf(temp, LINE_FORMAT, ac->id, ac->client->id, ac->balance);
+  }
   fclose(file);
   fclose(temp);
   remove(STORAGE_FILE);

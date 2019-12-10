@@ -7,6 +7,7 @@ typedef struct {
 } client;
 
 int client_delete (client* cl);
+int client_update (client* cl);
 int client_save (client* cl);
 client* client_new ();
 client* client_search_for_id(int id);

@@ -47,6 +47,22 @@ int client_save (client* cl) {
 }
 
 int client_update (client* cl) {
+  FILE* file = fopen(STORAGE_FILE, "r+");
+  FILE* temp = fopen(TEMP_FILE, "w");
+  client* cl_temp = client_new();
+  while (fscanf(file, LINE_FORMAT, &cl_temp->id, &cl_temp->name) != EOF) {
+    int is_finded = cl_temp->id == cl->id;
+    if (is_finded) {
+      fprintf(temp, LINE_FORMAT, cl->id, cl->name);
+    } else {
+      fprintf(temp, LINE_FORMAT, cl_temp->id, cl_temp->name);
+    }
+  }
+  free(cl_temp);
+  fclose(file);
+  fclose(temp);
+  remove(STORAGE_FILE);
+  rename(TEMP_FILE, STORAGE_FILE);
   return 0;
 }
 

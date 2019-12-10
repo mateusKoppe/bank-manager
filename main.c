@@ -158,7 +158,7 @@ void menu_account(account *ac) {
 void change_account_balance (account *ac) {
   printf("Enter the new balance: ");
   scanf("%f", &ac->balance);
-  account_update(*ac);
+  account_update(ac);
   printf("Account updated\n");
   enter_to_continue();
   menu_account(ac);

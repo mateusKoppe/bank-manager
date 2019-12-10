@@ -7,7 +7,7 @@
 
 #define STORAGE_FILE "storage/account.txt"
 #define TEMP_FILE "storage/account.temp.txt"
-#define ACCOUNT_LINE_FORMAT "%d | %d | %f\n"
+#define LINE_FORMAT "%d | %d | %f\n"
 
 account* account_new () {
   account* ac = malloc(sizeof(account));
@@ -27,15 +27,17 @@ int account_list_push (account_list *l, account *value) {
   l->length++;
 }
 
-int account_delete (account ac) {
+int account_delete (account* ac) {
   FILE* file = fopen(STORAGE_FILE, "r+");
   FILE* temp = fopen(TEMP_FILE, "w");
-  account i_ac;
-  while (fscanf(file, ACCOUNT_LINE_FORMAT, &i_ac.id, &i_ac.client_name, &i_ac.balance) != EOF) {
-    if (i_ac.id == ac.id) {
+  client* cl = client_search_for_id(ac->client->id);
+  client_delete(cl);
+  account* ac_temp = account_new();
+  while (fscanf(file, LINE_FORMAT, &ac_temp->id, &ac_temp->client->id, &ac_temp->balance) != EOF) {
+    if (ac_temp->id == ac->id) {
       continue;
     }
-    fprintf(temp, ACCOUNT_LINE_FORMAT, i_ac.id, i_ac.client_name, i_ac.balance);
+    fprintf(temp, LINE_FORMAT, ac_temp->id, ac_temp->client->id, ac_temp->balance);
   }
   fclose(file);
   fclose(temp);
@@ -47,17 +49,17 @@ int account_delete (account ac) {
 int account_save (account* ac) {
   FILE* file = fopen(STORAGE_FILE, "r+");
   FILE* temp = fopen(TEMP_FILE, "w");
-  account* i_ac = account_new();
+  account* ac_temp = account_new();
   int is_saved = 0;
   /* TODO: Handle client errors */
   client_save(ac->client);
-  while (fscanf(file, ACCOUNT_LINE_FORMAT, &i_ac->id, &i_ac->client->id, &i_ac->balance) != EOF) {
-    int is_bigger = i_ac->id > ac->id;
+  while (fscanf(file, LINE_FORMAT, &ac_temp->id, &ac_temp->client->id, &ac_temp->balance) != EOF) {
+    int is_bigger = ac_temp->id > ac->id;
     if (is_bigger && !is_saved) {
-      fprintf(temp, ACCOUNT_LINE_FORMAT, ac->id, ac->client->id, ac->balance);
+      fprintf(temp, LINE_FORMAT, ac->id, ac->client->id, ac->balance);
       is_saved = 1;
     }
-    fprintf(temp, ACCOUNT_LINE_FORMAT, i_ac->id, i_ac->client->id, i_ac->balance);
+    fprintf(temp, LINE_FORMAT, ac_temp->id, ac_temp->client->id, ac_temp->balance);
   }
   fclose(file);
   fclose(temp);
@@ -69,16 +71,16 @@ int account_save (account* ac) {
 int account_update (account ac) {
   FILE* file = fopen(STORAGE_FILE, "r+");
   FILE* temp = fopen(TEMP_FILE, "w");
-  account* i_ac = malloc(sizeof(account));
-  while (fscanf(file, ACCOUNT_LINE_FORMAT, &i_ac->id, &i_ac->client_name, &i_ac->balance) != EOF) {
-    int is_finded = i_ac->id == ac.id;
+  account* ac_temp = malloc(sizeof(account));
+  while (fscanf(file, LINE_FORMAT, &ac_temp->id, &ac_temp->client_name, &ac_temp->balance) != EOF) {
+    int is_finded = ac_temp->id == ac.id;
     if (is_finded) {
-      fprintf(temp, ACCOUNT_LINE_FORMAT, ac.id, ac.client_name, ac.balance);
+      fprintf(temp, LINE_FORMAT, ac.id, ac.client_name, ac.balance);
     } else {
-      fprintf(temp, ACCOUNT_LINE_FORMAT, i_ac->id, i_ac->client_name, i_ac->balance);
+      fprintf(temp, LINE_FORMAT, ac_temp->id, ac_temp->client_name, ac_temp->balance);
     }
   }
-  free(i_ac);
+  free(ac_temp);
   fclose(file);
   fclose(temp);
   remove(STORAGE_FILE);
@@ -90,7 +92,7 @@ account* account_search_for_id (int id) {
   account* ac = account_new();
   FILE* file = fopen(STORAGE_FILE, "r");
   int is_finded = 0;
-  while (fscanf(file, ACCOUNT_LINE_FORMAT, &ac->id, &ac->client->id, &ac->balance) != EOF) {
+  while (fscanf(file, LINE_FORMAT, &ac->id, &ac->client->id, &ac->balance) != EOF) {
     is_finded = ac->id == id;
     if (is_finded) {
       break;
@@ -111,7 +113,7 @@ account* account_search_for_name (char* name) {
   account* ac = malloc(sizeof(account));
   FILE* file = fopen(STORAGE_FILE, "r");
   int is_finded = 0;
-  while (fscanf(file, ACCOUNT_LINE_FORMAT, &ac->id, &ac->client_name, &ac->balance) != EOF) {
+  while (fscanf(file, LINE_FORMAT, &ac->id, &ac->client_name, &ac->balance) != EOF) {
     is_finded = strcmp(ac->client_name, name) == 0;
     if (is_finded) {
       break;
@@ -133,7 +135,7 @@ account_list* account_get_all () {
   FILE* file = fopen(STORAGE_FILE, "r");
   account* cl_temp = account_new();
 
-  while (fscanf(file, ACCOUNT_LINE_FORMAT, &cl_temp->id, &cl_temp->client->id, &cl_temp->balance) != EOF) {
+  while (fscanf(file, LINE_FORMAT, &cl_temp->id, &cl_temp->client->id, &cl_temp->balance) != EOF) {
     account *ac = account_new();
     ac->id = cl_temp->id;
     ac->client = client_search_for_id(cl_temp->client->id);

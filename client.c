@@ -17,6 +17,19 @@ client* client_new () {
 }
 
 int client_delete (client* cl) {
+  FILE* file = fopen(STORAGE_FILE, "r+");
+  FILE* temp = fopen(TEMP_FILE, "w");
+  client* cl_temp = client_new();
+  while (fscanf(file, LINE_FORMAT, &cl_temp->id, &cl_temp->name) != EOF) {
+    if (cl_temp->id == cl->id) {
+      continue;
+    }
+    fprintf(temp, LINE_FORMAT, cl_temp->id, cl_temp->name);
+  }
+  fclose(file);
+  fclose(temp);
+  remove(STORAGE_FILE);
+  rename(TEMP_FILE, STORAGE_FILE);
   return 0;
 }
 

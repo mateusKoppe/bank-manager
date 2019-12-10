@@ -170,7 +170,7 @@ void delete_account (account *ac) {
   getchar();
   scanf("%c", &awnser);
   if (awnser == 'y') {
-    account_delete(*ac);
+    account_delete(ac);
     printf("Account deleted\n");
     enter_to_continue();
   }

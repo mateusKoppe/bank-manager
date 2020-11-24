@@ -1,10 +1,10 @@
-compile:
-	gcc client.c account.c main.c -o bank
-
 build: compile
 	touch storage/account.txt
 	touch storage/client.txt
 	touch storage/client.index-name.txt
+
+compile:
+	gcc client.c account.c main.c -o bank
 
 clean: 
 	rm storage/account.txt -f
